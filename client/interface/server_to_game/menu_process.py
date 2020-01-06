@@ -15,5 +15,3 @@ class MenuProcess:
             self.intergame.start()
         else:
             raise RuntimeError
-
-        print("Menu Process")

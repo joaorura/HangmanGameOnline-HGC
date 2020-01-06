@@ -11,7 +11,12 @@ class ServerConnection:
         self.address = (ip, port)
         self.socket = socket()
 
-        self.socket.connect(self.address)
+        while True:
+            try:
+                self.socket.connect(self.address)
+                break
+            except ConnectionRefusedError:
+                continue
 
         self.queue_send = Queue()
         self.process_send = Process(target=self._process_send, args=(self.queue_send, self.socket))
@@ -25,12 +30,12 @@ class ServerConnection:
     def _process_send(queue, socket):
         while True:
             if queue.empty():
-                sleep(10)
+                sleep(0.1)
                 continue
 
             aux = queue.get()
             jdata = dumps(aux)
-            socket.sendall(jdata)
+            socket.sendall(jdata.encode())
 
     @staticmethod
     def _process_receive(queue, socket):

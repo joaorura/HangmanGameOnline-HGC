@@ -1,8 +1,8 @@
-from interface import main
+from interface.main import start
 
 
 def main():
-    main.start()
+    start()
 
 
 if __name__ == '__main__':

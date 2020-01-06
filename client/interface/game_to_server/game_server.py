@@ -45,12 +45,13 @@ class GameServer:
 
     def start(self):
         send = {
-            "type": "user"
+            "type": "menu",
+            "subtype": "user"
         }
 
         self.queue_send.put(send)
         while self.queue_receive.empty():
-            sleep(5)
+            sleep(1)
 
         aux = self.queue_receive.get()
         self.id = aux["id"]

@@ -18,7 +18,7 @@ class ProcessAll:
         intergame.game_to_server.start()
         while True:
             if queue_receive.empty():
-                sleep(10)
+                sleep(0.1)
                 continue
 
             aux = queue_receive.get()

@@ -1,4 +1,4 @@
-from front.window import Window
+from front.menu import Window
 from interface.game_to_server.game_server import GameServer
 
 

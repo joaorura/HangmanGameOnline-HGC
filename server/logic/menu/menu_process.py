@@ -7,18 +7,31 @@ class MenuProcess:
         self.jdata = jdata
         self.queue = queue
 
+    def _send_id(self):
+        send = {"id": 31231}
+        self.queue.put(send)
+
+        send = {
+            "type": "menu",
+            "subtype": "start"
+        }
+        self.queue.put(send)
+
     def _create_room(self):
         print("Create Room")
 
-    def exit_room(self):
+    def _exit_room(self):
         print("Exit Room")
 
     def start(self):
-        aux = self.jdata['type']
+        aux = self.jdata['subtype']
 
-        if aux == 'create_room':
+        if aux == "user":
+            self._send_id()
+        elif aux == 'create_room':
             self._create_room()
         elif aux == 'exit_room':
-            self.exit_room()
+            self._exit_room()
         else:
+            print(aux)
             raise RuntimeError("Problem in MenuProcess")

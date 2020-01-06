@@ -19,7 +19,6 @@ class CommunicateProcess:
         self.process_receive = Process(target=self._process_receive, args=(self.queue_receive, self.socket))
 
         self.process = ProcessAll(self.queue_send, self.queue_receive)
-        self.process.start()
 
     @staticmethod
     def _process_receive(queue, socket):
@@ -30,28 +29,27 @@ class CommunicateProcess:
                 break
 
             jdata = loads(response.decode('utf-8'))
+            print(jdata)
             queue.put(jdata)
 
     @staticmethod
     def _process_send(queue, socket):
         while True:
+            print("aa")
             if queue.empty():
-                sleep(10)
+                sleep(0.1)
                 continue
 
             aux = queue.get()
-
-            try:
-                check_type(aux, dict)
-            finally:
-                continue
+            print(aux)
 
             to_send = dumps(aux)
-            socket.sendall(to_send)
+            to_send = to_send.encode()
+            socket.send(to_send)
 
     def start(self):
         self.process_send.start()
         self.process_receive.start()
-
+        self.process.start()
         self.process_send.join()
         self.process_receive.join()
