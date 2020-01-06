@@ -12,12 +12,15 @@ class Receive:
         self.server_socket = socket()
         self.server_socket.bind(self.address)
 
-    def start_listen(self):
-        print(f"Start receive information from: {self.address}")
+    def start(self):
+        print(f"Start server listen in: {self.address}")
         self.server_socket.listen(1)
 
         while True:
             aux = self.server_socket.accept()
+
+            print(f"\tNew connection with: {aux[1]}")
+
             lister = CommunicateProcess(aux[0], aux[1])
             lister.start()
 

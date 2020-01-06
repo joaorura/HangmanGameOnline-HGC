@@ -1,16 +1,17 @@
+from socket import socket
 from multiprocessing import Process, Queue
+from utils.utils import check_type
 from json import dumps, loads
 from time import sleep
-from utils.utils import check_type
 from .process_all import ProcessAll
 
 
-class CommunicateProcess:
-    def __init__(self, socket,  address):
-        check_type(address, tuple)
+class ServerConnection:
+    def __init__(self, ip, port):
+        self.address = (ip, port)
+        self.socket = socket()
 
-        self.socket = socket
-        self.address = address
+        self.socket.connect(self.address)
 
         self.queue_send = Queue()
         self.process_send = Process(target=self._process_send, args=(self.queue_send, self.socket))
@@ -19,7 +20,17 @@ class CommunicateProcess:
         self.process_receive = Process(target=self._process_receive, args=(self.queue_receive, self.socket))
 
         self.process = ProcessAll(self.queue_send, self.queue_receive)
-        self.process.start()
+
+    @staticmethod
+    def _process_send(queue, socket):
+        while True:
+            if queue.empty():
+                sleep(10)
+                continue
+
+            aux = queue.get()
+            jdata = dumps(aux)
+            socket.sendall(jdata)
 
     @staticmethod
     def _process_receive(queue, socket):
@@ -32,26 +43,13 @@ class CommunicateProcess:
             jdata = loads(response.decode('utf-8'))
             queue.put(jdata)
 
-    @staticmethod
-    def _process_send(queue, socket):
-        while True:
-            if queue.empty():
-                sleep(10)
-                continue
-
-            aux = queue.get()
-
-            try:
-                check_type(aux, dict)
-            finally:
-                continue
-
-            to_send = dumps(aux)
-            socket.sendall(to_send)
+    def send(self, jdata):
+        check_type(jdata, dict)
+        self.queue_send.put(jdata)
 
     def start(self):
         self.process_send.start()
         self.process_receive.start()
-
+        self.process.start()
         self.process_send.join()
         self.process_receive.join()

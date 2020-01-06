@@ -1,5 +1,8 @@
+from interface import interface
+
+
 def main():
-    pass
+    interface.start_server()
 
 
 if __name__ == '__main__':
