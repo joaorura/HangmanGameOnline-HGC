@@ -14,7 +14,7 @@ class Receive:
 
     def start(self):
         print(f"Start server listen in: {self.address}")
-        self.server_socket.listen(1)
+        self.server_socket.listen(1000)
 
         while True:
             aux = self.server_socket.accept()

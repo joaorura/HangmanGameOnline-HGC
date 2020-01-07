@@ -10,12 +10,16 @@ class ServerConnection:
     def __init__(self, ip, port):
         self.address = (ip, port)
         self.socket = socket()
-
+        a = 0
         while True:
             try:
                 self.socket.connect(self.address)
                 break
             except ConnectionRefusedError:
+                if a == 10:
+                    raise ConnectionRefusedError
+                a += 1
+                 print("eoq")
                 continue
 
         self.queue_send = Queue()

@@ -15,7 +15,7 @@ class ProcessAll:
     def _run(queue_send, queue_receive):
         while True:
             if queue_receive.empty():
-                sleep(10)
+                sleep(0.001)
                 continue
 
             jdata = queue_receive.get()

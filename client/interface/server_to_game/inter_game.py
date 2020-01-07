@@ -1,5 +1,6 @@
-from front.menu import Window
+from front.menu import Menu
 from interface.game_to_server.game_server import GameServer
+import tkinter as tk
 
 
 class InterGame:
@@ -22,9 +23,13 @@ class InterGame:
         pass
 
     def start(self):
-        self.window = Window()
+        aux = tk.Tk()
+        self.window = Menu(self, aux)
+        self.window.pack()
         self.window.change_menu((
             self.game_to_server.create_room,
             self.game_to_server.enter_room,
             self.game_to_server.exit_room
         ))
+        self.window.mainloop()
+        print("dsada")

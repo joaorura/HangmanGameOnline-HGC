@@ -35,9 +35,8 @@ class CommunicateProcess:
     @staticmethod
     def _process_send(queue, socket):
         while True:
-            print("aa")
             if queue.empty():
-                sleep(0.1)
+                sleep(0.001)
                 continue
 
             aux = queue.get()

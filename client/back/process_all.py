@@ -28,7 +28,9 @@ class ProcessAll:
             else:
                 run = GameProcess(intergame, aux, queue_send)
 
-            run.start()
+            aux = Process(target=run.start())
+            aux.start()
+            print("eoq")
 
     def start(self):
         self.process.start()
