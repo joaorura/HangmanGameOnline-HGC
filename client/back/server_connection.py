@@ -1,14 +1,15 @@
 from socket import socket
-from multiprocessing import Process, Queue
+from multiprocessing import Queue, Value
 from utils.utils import check_type
-from json import dumps, loads
-from time import sleep
 from .process_all import ProcessAll
+from .process_receive import ProcessReceive
+from .process_send import ProcessSend
 
 
 class ServerConnection:
     def __init__(self, ip, port):
         self.address = (ip, port)
+        self.process_list = []
         self.socket = socket()
         a = 0
         while True:
@@ -16,49 +17,35 @@ class ServerConnection:
                 self.socket.connect(self.address)
                 break
             except ConnectionRefusedError:
-                if a == 10:
+                if a == 5:
                     raise ConnectionRefusedError
                 a += 1
-                 print("eoq")
                 continue
 
         self.queue_send = Queue()
-        self.process_send = Process(target=self._process_send, args=(self.queue_send, self.socket))
-
         self.queue_receive = Queue()
-        self.process_receive = Process(target=self._process_receive, args=(self.queue_receive, self.socket))
 
+        self.process_send = ProcessSend(self.queue_send, self.socket)
+        self.process_receive = ProcessReceive(self.queue_receive, self.socket)
         self.process = ProcessAll(self.queue_send, self.queue_receive)
 
-    @staticmethod
-    def _process_send(queue, socket):
-        while True:
-            if queue.empty():
-                sleep(0.1)
-                continue
-
-            aux = queue.get()
-            jdata = dumps(aux)
-            socket.sendall(jdata.encode())
-
-    @staticmethod
-    def _process_receive(queue, socket):
-        while True:
-            try:
-                response = socket.recv(1024)
-            except ConnectionResetError:
-                break
-
-            jdata = loads(response.decode('utf-8'))
-            queue.put(jdata)
+        self.process_list.append(self.process_send)
+        self.process_list.append(self.process_receive)
+        self.process_list.append(self.process)
 
     def send(self, jdata):
         check_type(jdata, dict)
         self.queue_send.put(jdata)
 
+    def terminate(self):
+        for a in self.process_list:
+            a.terminate()
+
     def start(self):
-        self.process_send.start()
-        self.process_receive.start()
-        self.process.start()
-        self.process_send.join()
-        self.process_receive.join()
+        for a in self.process_list:
+            a.start()
+
+        self.process.intergame.game_to_server.start()
+        self.process.intergame.start()
+        self.process.intergame.game_to_server.end()
+        self.terminate()

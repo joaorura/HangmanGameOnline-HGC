@@ -1,32 +1,29 @@
 from multiprocessing import Process
-from time import sleep
 from .game.game_process import GameProcess
 from .menu.menu_process import MenuProcess
 
 
-class ProcessAll:
-    def __init__(self, queue_send, queue_receive):
+class ProcessAll(Process):
+    def __init__(self, queue_send, queue_receive, client_status):
         self.queue_send = queue_send
         self.queue_receive = queue_receive
+        self.client_status = client_status
 
-        self.process = Process(target=self._run, args=(self.queue_send, self.queue_receive))
+        super().__init__(target=self._run)
 
-    @staticmethod
-    def _run(queue_send, queue_receive):
+    def _run(self):
         while True:
-            if queue_receive.empty():
-                sleep(0.001)
+            if self.queue_receive.empty():
                 continue
 
-            jdata = queue_receive.get()
+            jdata = self.queue_receive.get()
+            print(jdata)
 
             if jdata['type'] == 'game':
-                game = GameProcess(jdata, queue_send)
+                game = GameProcess(jdata, self.queue_send)
+            elif jdata['type'] == 'menu':
+                game = MenuProcess(jdata, self.queue_send, self.client_status)
             else:
-                game = MenuProcess(jdata, queue_send)
+                raise RuntimeError
 
             game.start()
-
-    def start(self):
-        self.process.start()
-        self.process.join()

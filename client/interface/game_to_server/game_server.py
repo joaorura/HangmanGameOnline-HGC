@@ -1,11 +1,11 @@
-from time import sleep
+from multiprocessing import Value
 
 
 class GameServer:
     def __init__(self, queue_send, queue_receive):
         self.queue_send = queue_send
         self.queue_receive = queue_receive
-        self.id = None
+        self.id = Value("i", -1)
 
     def _return_function(self, send):
         def f():
@@ -50,10 +50,15 @@ class GameServer:
         }
 
         self.queue_send.put(send)
-        while self.queue_receive.empty():
-            sleep(1)
 
-        aux = self.queue_receive.get()
-        self.id = aux["id"]
+    def end(self):
+        send = {
+            "type": "menu",
+            "subtype": "end",
+            "id": int(self.id.value)
+        }
 
+        self.queue_send.put(send)
 
+        while not self.queue_send.empty():
+            continue

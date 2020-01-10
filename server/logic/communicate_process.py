@@ -1,8 +1,8 @@
-from multiprocessing import Process, Queue
-from json import dumps, loads
-from time import sleep
+from multiprocessing import Queue, Value
 from utils.utils import check_type
 from .process_all import ProcessAll
+from .process_receive import ProcessReceive
+from .process_send import ProcessSend
 
 
 class CommunicateProcess:
@@ -11,44 +11,29 @@ class CommunicateProcess:
 
         self.socket = socket
         self.address = address
-
+        self.process_list = []
+        self.client_status = Value('i', True)
         self.queue_send = Queue()
-        self.process_send = Process(target=self._process_send, args=(self.queue_send, self.socket))
-
         self.queue_receive = Queue()
-        self.process_receive = Process(target=self._process_receive, args=(self.queue_receive, self.socket))
 
-        self.process = ProcessAll(self.queue_send, self.queue_receive)
+        self.process_send = ProcessSend(self.queue_send, self.socket)
+        self.process_receive = ProcessReceive(self.queue_receive, self.socket)
+        self.process = ProcessAll(self.queue_send, self.queue_receive, self.client_status)
 
-    @staticmethod
-    def _process_receive(queue, socket):
-        while True:
-            try:
-                response = socket.recv(1024)
-            except ConnectionResetError:
-                break
+        self.process_list.append(self.process_send)
+        self.process_list.append(self.process_receive)
+        self.process_list.append(self.process)
 
-            jdata = loads(response.decode('utf-8'))
-            print(jdata)
-            queue.put(jdata)
-
-    @staticmethod
-    def _process_send(queue, socket):
-        while True:
-            if queue.empty():
-                sleep(0.001)
-                continue
-
-            aux = queue.get()
-            print(aux)
-
-            to_send = dumps(aux)
-            to_send = to_send.encode()
-            socket.send(to_send)
+    def terminate(self):
+        for a in self.process_list:
+            a.terminate()
 
     def start(self):
-        self.process_send.start()
-        self.process_receive.start()
-        self.process.start()
-        self.process_send.join()
-        self.process_receive.join()
+        for a in self.process_list:
+            a.start()
+
+        while bool(self.client_status):
+            continue
+
+        self.terminate()
+

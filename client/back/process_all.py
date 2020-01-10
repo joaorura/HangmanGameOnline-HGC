@@ -1,37 +1,31 @@
 from multiprocessing import Process
-from time import sleep
 from interface.server_to_game.game_process import GameProcess
 from interface.server_to_game.inter_game import InterGame
 from interface.server_to_game.menu_process import MenuProcess
 
 
-class ProcessAll:
+class ProcessAll(Process):
     def __init__(self, queue_send, queue_receive):
-        self.intergame = InterGame(queue_send, queue_receive)
         self.queue_send = queue_send
         self.queue_receive = queue_receive
+        self.intergame = InterGame(queue_send, queue_receive)
 
-        self.process = Process(target=self._run, args=(self.intergame, self.queue_send, self.queue_receive))
+        super().__init__(target=self._run)
 
-    @staticmethod
-    def _run(intergame, queue_send, queue_receive):
-        intergame.game_to_server.start()
+    def _run(self):
         while True:
-            if queue_receive.empty():
-                sleep(0.1)
+            if self.queue_receive.empty():
                 continue
 
-            aux = queue_receive.get()
-
-            if aux['type'] == 'menu':
-                run = MenuProcess(intergame, aux, queue_send)
+            aux = self.queue_receive.get()
+            test = aux['type']
+            if test == "menu":
+                run = MenuProcess(self.intergame, aux, self.queue_send)
+                run.start()
+            elif test == "Game":
+                run = GameProcess(self.intergame, aux, self.queue_send)
+                run.start()
+            elif test == "user":
+                self.intergame.game_to_server.id.value = aux["id"]
             else:
-                run = GameProcess(intergame, aux, queue_send)
-
-            aux = Process(target=run.start())
-            aux.start()
-            print("eoq")
-
-    def start(self):
-        self.process.start()
-        self.process.join()
+                raise RuntimeError

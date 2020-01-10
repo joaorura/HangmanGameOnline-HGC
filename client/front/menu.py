@@ -15,16 +15,13 @@ class Menu(tk.Frame):
         self.button_enter = tk.Button(self, text="Enter Room", command=self._button_enter)
         self.button_enter.pack()
 
-        self.button_exit = tk.Button(self, text="Exit", command=self._button_exit)
-        self.button_exit.pack()
+    def _button_exit(self):
+        self.intergame.exit_client()
 
     def _button_create(self):
         pass
 
     def _button_enter(self):
-        pass
-
-    def _button_exit(self):
         pass
 
     def change_menu(self, param):

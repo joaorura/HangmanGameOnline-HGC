@@ -1,8 +1,8 @@
 from logic.receive import Receive
 
 
-def start_server():
-    server = Receive("localhost", 20)
+def start_server(address, port):
+    server = Receive(address, port)
     server.start()
 
 

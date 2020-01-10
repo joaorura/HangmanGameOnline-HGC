@@ -1,8 +1,10 @@
 from back.server_connection import ServerConnection
 
 
-def start():
-    print("Starting Client")
-    server_connection = ServerConnection("localhost", 20)
-    server_connection.start()
+class Interface:
+    def __init__(self, address, port):
+        self.server_connection = ServerConnection(address, port)
 
+    def start(self):
+        print("Starting Client")
+        self.server_connection.start()

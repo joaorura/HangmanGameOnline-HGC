@@ -1,8 +1,9 @@
-from interface.main import start
+from interface.main import Interface
 
 
 def main():
-    start()
+    interface = Interface("localhost", 20)
+    interface.start()
 
 
 if __name__ == '__main__':
