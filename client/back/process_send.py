@@ -16,5 +16,4 @@ class ProcessSend(Process):
 
             aux = self.queue.get()
             jdata = dumps(aux)
-            print(jdata)
             self.socket.sendall(jdata.encode())

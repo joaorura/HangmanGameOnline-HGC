@@ -19,7 +19,6 @@ class ProcessReceive(Process):
             aux = response.decode('utf-8').replace("}{", "}\n{")
             aux = aux.split("\n")
 
-
             for a in aux:
                 jdata = loads(a)
                 self.queue.put(jdata)
