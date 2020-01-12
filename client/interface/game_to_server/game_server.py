@@ -1,11 +1,7 @@
-from multiprocessing import Value
-
-
 class GameServer:
     def __init__(self, queue_send, queue_receive):
         self.queue_send = queue_send
         self.queue_receive = queue_receive
-        self.id = Value("i", -1)
 
     def _return_function(self, send):
         def f():
@@ -13,49 +9,44 @@ class GameServer:
 
         return f
 
-    def create_room(self, password):
+    def create_room(self, name, password):
         send = {
-            "type": "room",
+            "type": "menu",
             "subtype": "create",
-            "id": self.id,
+            "name": name,
             "password": password
         }
 
-        return self._return_function(send)
+        self.queue_send.put(send)
 
-    def enter_room(self, id_room, password):
-        send = {
-            "type": "room",
-            "subtype": "enter",
-            "id": self.id,
-            "id_room": id_room,
-            "password": password
-        }
+    def enter_room(self, id_room_input, password_input):
+        def f():
+            id_room = id_room_input.get("1.0", "end-1c")
+            password = password_input.get("1.0", "end-1c")
 
-        return self._return_function(send)
+            send = {
+                "type": "menu",
+                "subtype": "enter",
+                "id_room": id_room,
+                "password": password
+            }
+
+            self.queue_send.put(send)
+
+        return f
 
     def exit_room(self):
         send = {
             "type": "room",
             "subtype": "exit",
-            "id": self.id,
         }
 
         return self._return_function(send)
-
-    def start(self):
-        send = {
-            "type": "menu",
-            "subtype": "user"
-        }
-
-        self.queue_send.put(send)
 
     def end(self):
         send = {
             "type": "menu",
             "subtype": "end",
-            "id": int(self.id.value)
         }
 
         self.queue_send.put(send)

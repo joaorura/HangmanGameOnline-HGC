@@ -18,7 +18,6 @@ class Receive:
 
         while True:
             aux = self.server_socket.accept()
-
             print(f"\tNew connection with: {aux[1]}")
 
             lister = CommunicateProcess(aux[0], aux[1])

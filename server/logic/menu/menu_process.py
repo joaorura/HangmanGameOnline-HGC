@@ -8,17 +8,11 @@ class MenuProcess:
         self.queue = queue
         self.client_status = client_status
 
-    def _send_id(self):
-        send = {
-            "type": "user",
-            "subtype": "identification",
-            "id": 31231
-        }
-
-        self.queue.put(send)
-
     def _create_room(self):
         print("Create Room")
+
+    def _enter_room(self):
+        print("Enter Room")
 
     def _exit_room(self):
         print("Exit Room")
@@ -29,14 +23,13 @@ class MenuProcess:
     def start(self):
         aux = self.jdata['subtype']
 
-        if aux == "user":
-                self._send_id()
-        elif aux == "end":
-            print("Fim do user k7")
-        elif aux == 'create_room':
+        if aux == "end":
+            self._exit_all()
+        elif aux == 'create':
             self._create_room()
-        elif aux == 'exit_room':
+        elif aux == "enter":
+            self._enter_room()
+        elif aux == 'exit':
             self._exit_room()
         else:
-            print(aux)
             raise RuntimeError("Problem in MenuProcess")

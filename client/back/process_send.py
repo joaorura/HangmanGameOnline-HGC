@@ -1,5 +1,6 @@
 from multiprocessing import Process
 from json import dumps
+from time import sleep
 
 
 class ProcessSend(Process):
@@ -12,6 +13,7 @@ class ProcessSend(Process):
     def _process_send(self):
         while True:
             if self.queue.empty():
+                sleep(0.1)
                 continue
 
             aux = self.queue.get()

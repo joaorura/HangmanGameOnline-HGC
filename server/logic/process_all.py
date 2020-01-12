@@ -1,6 +1,7 @@
 from multiprocessing import Process
 from .game.game_process import GameProcess
 from .menu.menu_process import MenuProcess
+from time import sleep
 
 
 class ProcessAll(Process):
@@ -13,7 +14,12 @@ class ProcessAll(Process):
 
     def _run(self):
         while True:
+            if not bool(self.client_status.value):
+                print("Saiu All")
+                return
+
             if self.queue_receive.empty():
+                sleep(0.1)
                 continue
 
             jdata = self.queue_receive.get()

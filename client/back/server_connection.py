@@ -45,7 +45,7 @@ class ServerConnection:
         for a in self.process_list:
             a.start()
 
-        self.process.intergame.game_to_server.start()
         self.process.intergame.start()
         self.process.intergame.game_to_server.end()
         self.terminate()
+        self.socket.shutdown(1)

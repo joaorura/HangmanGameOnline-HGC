@@ -16,8 +16,8 @@ class CommunicateProcess:
         self.queue_send = Queue()
         self.queue_receive = Queue()
 
-        self.process_send = ProcessSend(self.queue_send, self.socket)
-        self.process_receive = ProcessReceive(self.queue_receive, self.socket)
+        self.process_send = ProcessSend(self.queue_send, self.socket, self.client_status)
+        self.process_receive = ProcessReceive(self.queue_receive, self.socket, self.client_status)
         self.process = ProcessAll(self.queue_send, self.queue_receive, self.client_status)
 
         self.process_list.append(self.process_send)
@@ -31,9 +31,4 @@ class CommunicateProcess:
     def start(self):
         for a in self.process_list:
             a.start()
-
-        while bool(self.client_status):
-            continue
-
-        self.terminate()
 
