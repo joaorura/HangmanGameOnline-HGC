@@ -1,5 +1,5 @@
 from socket import socket
-from multiprocessing import Queue, Value
+from multiprocessing import Queue, Manager
 from utils.utils import check_type
 from .process_all import ProcessAll
 from .process_receive import ProcessReceive
@@ -27,7 +27,9 @@ class ServerConnection:
 
         self.process_send = ProcessSend(self.queue_send, self.socket)
         self.process_receive = ProcessReceive(self.queue_receive, self.socket)
-        self.process = ProcessAll(self.queue_send, self.queue_receive)
+
+        self.dict_front = Manager().dict()
+        self.process = ProcessAll(self.dict_front, self.queue_send, self.queue_receive)
 
         self.process_list.append(self.process_send)
         self.process_list.append(self.process_receive)

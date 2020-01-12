@@ -16,7 +16,6 @@ class ProcessReceive(Process):
         while True:
             if not bool(self.client_status.value):
                 self.socket.close()
-                print("Saiu Receive")
                 return
 
             try:

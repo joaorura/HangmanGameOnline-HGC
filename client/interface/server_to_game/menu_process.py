@@ -7,8 +7,8 @@ class MenuProcess:
     def start(self):
         aux = self.data['subtype']
 
-        if aux == "create" or aux == "enter":
-            self.intergame.enter_room(self.data['id_room'], self.data['password'])
+        if aux == "enter":
+            self.intergame.enter_room(self.data)
         elif aux == "exit":
             self.intergame.exit_room()
         elif aux == "start":

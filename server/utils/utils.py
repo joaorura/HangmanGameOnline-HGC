@@ -1,3 +1,9 @@
+from random import randint
+
+
+all_words = ["banana"]
+
+
 def check_type(value, type_check):
     if type(type_check) != type:
         raise RuntimeError("The parameters of check_type must be a value and type. "
@@ -5,3 +11,8 @@ def check_type(value, type_check):
 
     if type(value) != type_check:
         raise ValueError(f"The type must be a {type_check}")
+
+
+def words():
+    drawn = randint(0, len(all_words) - 1)
+    return all_words[drawn]

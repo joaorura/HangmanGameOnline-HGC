@@ -9,31 +9,41 @@ class GameServer:
 
         return f
 
-    def create_room(self, name, password):
+    def create_room(self, name_player, name_room, password):
+        if name_player == "":
+            return "Name Player must be a string no empty"
+        elif name_room == "":
+            return "Name Room must be a string no empty"
+
         send = {
             "type": "menu",
             "subtype": "create",
-            "name": name,
+            "name_player": name_player,
+            "name_room": name_room,
             "password": password
         }
 
         self.queue_send.put(send)
 
-    def enter_room(self, id_room_input, password_input):
-        def f():
-            id_room = id_room_input.get("1.0", "end-1c")
-            password = password_input.get("1.0", "end-1c")
+        return None
 
-            send = {
-                "type": "menu",
-                "subtype": "enter",
-                "id_room": id_room,
-                "password": password
-            }
+    def enter_room(self, name_player, id_room, password):
+        if name_player == "":
+            return "Name Player must be a string no empty"
+        elif id_room == "":
+            return "Id Room must be a string no empty"
 
-            self.queue_send.put(send)
+        send = {
+            "type": "menu",
+            "subtype": "enter",
+            "name_player": name_player,
+            "id_room": id_room,
+            "password": password
+        }
 
-        return f
+        self.queue_send.put(send)
+
+        return None
 
     def exit_room(self):
         send = {
