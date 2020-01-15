@@ -56,7 +56,8 @@ class Menu(tk.Frame):
     def destroy(self):
         if self.sub_window is not None:
             self.sub_window.destroy()
-            self.sub_window = None
-            self.sub_menu = None
+
+        self.label = self.button_create = self.button_enter \
+            = self.sub_window = self.sub_menu = None
 
         super().destroy()

@@ -1,3 +1,5 @@
+from copy import copy, deepcopy
+
 from utils.utils import check_type, words
 from random import randint
 
@@ -14,25 +16,34 @@ class MenuProcess:
 
     def _create_room(self):
         while True:
-            identification = str(randint(0, 2000))
+            id_room = str(randint(0, 2000))
             try:
-                self.rooms[identification]
+                self.rooms[id_room]
             except KeyError:
                 break
 
             continue
 
-        self.rooms[identification] = {
+        word = words()
+        word_discover = ""
+        for i in word:
+            word_discover += "X"
+
+        self.rooms[id_room] = {
             "name_room": self.json_data["name_room"],
             "password": self.json_data["password"],
             "players": [],
             "word": words(),
-            "attempts": 6
+            "word_discover": word_discover,
+            "attempts": 6,
+            "total_attempts": 0,
+            "rounds": 0,
+            "turn": 0
         }
 
-        self.json_data["id_room"] = identification
-        self.game.set_game = identification
-        # self.game.start()
+        self.json_data["id_room"] = id_room
+        self.game.set_game(id_room)
+        self.game.start()
         self._enter_room()
 
     def _enter_send(self, test, text=None):
@@ -44,6 +55,9 @@ class MenuProcess:
 
         if text is not None:
             send["message"] = text
+
+        if test:
+            send["id_room"] = self.json_data["id_room"]
 
         self.queue.put(send)
 
@@ -60,11 +74,12 @@ class MenuProcess:
         if self.json_data["password"] == room_data["password"]:
             aux = {
                 "name_player": self.json_data["name_player"],
-                "ip": self.address[0],
-                "port": str(self.address[1])
+                "address": self.address,
             }
 
-            self.rooms[id_room]["players"].append(aux)
+            copy = deepcopy(self.rooms[id_room])
+            copy["players"].append(aux)
+            self.rooms[id_room] = copy
 
             self._enter_send(True)
         else:

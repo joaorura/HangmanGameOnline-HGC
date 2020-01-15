@@ -6,11 +6,11 @@ from time import sleep
 
 
 class ProcessAll(Process):
-    def __init__(self, dict_front, queue_send, queue_receive):
+    def __init__(self, queue_front, queue_send, queue_receive):
         self.queue_send = queue_send
         self.queue_receive = queue_receive
 
-        self.intergame = InterGame(dict_front, self.queue_send, self.queue_receive)
+        self.intergame = InterGame(queue_front, self.queue_send, self.queue_receive)
 
         super().__init__(target=self._run)
 
@@ -24,7 +24,7 @@ class ProcessAll(Process):
             test = aux['type']
             if test == "menu":
                 run = MenuProcess(self.intergame, aux, self.queue_send)
-            elif test == "Game":
+            elif test == "game":
                 run = GameProcess(self.intergame, aux, self.queue_send)
             else:
                 raise RuntimeError

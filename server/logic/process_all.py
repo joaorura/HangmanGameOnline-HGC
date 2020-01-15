@@ -14,11 +14,12 @@ class ProcessAll(Process):
         self.client_status = client_status
         self.rooms = rooms
 
-        self.game = Game(queue_send, queue_receive, rooms)
+        self.game = None
 
         super().__init__(target=self._run)
 
     def _run(self):
+        self.game = Game(self.queue_send, self.queue_receive, self.rooms)
         while True:
             if not bool(self.client_status.value):
                 return
@@ -28,14 +29,13 @@ class ProcessAll(Process):
                 continue
 
             jdata = self.queue_receive.get()
-            print(jdata)
 
             if jdata['type'] == 'game':
-                game = GameProcess(jdata, self.queue_send, self.rooms)
+                aux = GameProcess(jdata, self.game, self.address, self.queue_send, self.rooms)
             elif jdata['type'] == 'menu':
-                game = MenuProcess(jdata, self.queue_send, self.client_status,
-                                   self.address, self.rooms, self.game)
+                aux = MenuProcess(jdata, self.queue_send, self.client_status,
+                                  self.address, self.rooms, self.game)
             else:
                 raise RuntimeError
 
-            game.start()
+            aux.start()

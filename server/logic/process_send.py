@@ -24,4 +24,5 @@ class ProcessSend(Process):
             aux = self.queue.get()
             to_send = dumps(aux)
             to_send = to_send.encode()
+            print(f"To send: {to_send}")
             self.socket.send(to_send)

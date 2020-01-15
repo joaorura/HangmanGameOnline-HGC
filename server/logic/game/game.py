@@ -1,4 +1,5 @@
 from multiprocessing import Process
+from time import sleep
 
 
 class Game(Process):
@@ -12,7 +13,8 @@ class Game(Process):
         super().__init__(target=self._process)
 
     def _process(self):
-        pass
+        while True:
+            sleep(0.5)
 
     def is_ready(self):
         return self._actual_id is not None
