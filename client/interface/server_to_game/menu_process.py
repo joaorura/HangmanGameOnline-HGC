@@ -9,8 +9,6 @@ class MenuProcess:
 
         if aux == "enter":
             self.intergame.enter_room(self.data)
-        elif aux == "exit":
-            self.intergame.exit_room()
         elif aux == "start":
             self.intergame.start()
         else:

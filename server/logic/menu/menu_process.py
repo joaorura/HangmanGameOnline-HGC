@@ -42,7 +42,8 @@ class MenuProcess:
         }
 
         self.json_data["id_room"] = id_room
-        self.game.set_game(id_room)
+        self.game.actual_id = id_room
+
         self.game.start()
         self._enter_room()
 
@@ -59,10 +60,12 @@ class MenuProcess:
         if test:
             send["id_room"] = self.json_data["id_room"]
 
+        print("tvaido")
         self.queue.put(send)
 
     def _enter_room(self):
         id_room = self.json_data["id_room"]
+        print("entrou")
 
         try:
             room_data = self.rooms[id_room]
@@ -77,10 +80,11 @@ class MenuProcess:
                 "address": self.address,
             }
 
-            copy = deepcopy(self.rooms[id_room])
-            copy["players"].append(aux)
-            self.rooms[id_room] = copy
+            _copy = deepcopy(self.rooms[id_room])
+            _copy["players"].append(aux)
+            self.rooms[id_room] = _copy
 
+            print("ta aqui")
             self._enter_send(True)
         else:
             self._enter_send(False, "Wrong Password.")

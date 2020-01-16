@@ -9,6 +9,14 @@ class GameFront(tk.Frame):
 
         super().__init__(master)
 
+        self.menu_bar = tk.Menu(self)
+        master.config(menu=self.menu_bar)
+
+        self.game_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self._init_game_menu()
+
+        self.menu_bar.add_cascade(label="Game", menu=self.game_menu)
+
         self.name_room = tk.Label(self, text=f'Name Room: {self.data["name_room"]}')
         self.name_room.grid(row=0, column=0)
 
@@ -28,6 +36,18 @@ class GameFront(tk.Frame):
         self._init_players_time()
 
         super().pack()
+
+    def _exit_game(self):
+        self.inter_game.exit_room(True)
+
+    def _end_game(self):
+        self.inter_game.end_game()
+
+    def _init_game_menu(self):
+        if self.data["admin"]:
+            self.game_menu.add_command(label="Delete Game", command=self._end_game)
+
+        self.game_menu.add_command(label="Exit", command=self._exit_game)
 
     def _init_times(self):
         aux = ""
@@ -58,3 +78,6 @@ class GameFront(tk.Frame):
             self.players_time.append(aux)
             column += 1
 
+    def destroy(self):
+        self.master.config(menu=None)
+        super().destroy()

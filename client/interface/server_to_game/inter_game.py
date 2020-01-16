@@ -13,7 +13,6 @@ class InterGame:
         self.game_to_server = GameServer(queue_send, queue_receive)
 
     def enter_room(self, data):
-        print(data["status"])
         if not data["status"]:
             self.queue_front.put(("alert", data["message"]))
         else:
@@ -27,8 +26,38 @@ class InterGame:
 
             self.queue_send.put(send)
 
-    def exit_room(self, alert=None):
-        self.queue_front.put(("end_game", None))
+    def end_game(self):
+        send_0 = {
+            "type": "game",
+            "subtype": "end",
+        }
+
+        send_1 = {
+            "type": "game",
+            "subtype": "att_request"
+        }
+
+        self.queue_send.put(send_0)
+        self.queue_send.put(send_1)
+
+    def exit_room(self, test):
+        if test:
+            send_0 = {
+                "type": "game",
+                "subtype": "exit"
+            }
+
+            send_1 = {
+                "type": "game",
+                "subtype": "att_request"
+            }
+
+            self.queue_send.put(send_0)
+            self.queue_send.put(send_1)
+        else:
+            self.queue_front.put(("end_game", None))
+
+    def alert(self, alert=None):
         if alert is None:
             alert = "Error"
 
@@ -55,6 +84,9 @@ class InterGame:
             elif element == "game_start":
                 page.destroy()
             elif element == "end_game":
+                if type(page) == GameFront:
+                    page.destroy()
+
                 page = Menu(self, root)
             elif element == "alert" and data is not None:
                 showerror("Error", data)
