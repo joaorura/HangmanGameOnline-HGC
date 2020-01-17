@@ -1,76 +1,68 @@
-from utils.utils import check_type
+from utils.utils import check_type, mount_message
 from copy import deepcopy
 
 
 class GameProcess:
-    def __init__(self, jdata, game, address, queue_send, queue_receive, rooms):
-        check_type(jdata, dict)
-        self.jdata = jdata
+    def __init__(self, data, game, address, queue_send, rooms):
+        check_type(data, dict)
+        self.data = data
         self.game = game
         self.address = address
         self.queue_send = queue_send
-        self.queue_receive = queue_receive
         self.rooms = rooms
 
     def _init_game(self):
-        id_room = self.jdata["id_room"]
+        id_room = self.data["id_room"]
         room = self.rooms[id_room]
 
-        send = {
-            "type": "game",
-            "subtype": "init",
-            "status": False
-        }
-
+        test = False
         for i in room["players"]:
             if i["address"] == self.address:
-                send["status"] = True
+                test = True
                 break
 
-        self.queue_send.put(send)
+        self.queue_send.put(mount_message("game_init", (test,)))
         self._send_state()
 
     def _exit_game(self):
         aux = self.game.remove_player(self.address)
-        if not aux:
-            send = {
-                "type": "game",
-                "subtype": "end"
-            }
 
-            self.queue_send.put(send)
+        if aux is not None and aux:
+            self.queue_send.put(mount_message("game_end"))
 
     def _end_game(self):
         self.game.end_game()
 
     def _send_state(self):
-        id_room = self.game.get_room()
+        id_room = self.game.actual_id
+        if id_room is None:
+            return
+
         try:
             room = self.rooms[id_room]
         except KeyError:
-            send_0 = {
-                "type": "game",
-                "subtype": "end",
-            }
+            self.game.actual_id = None
+            self.queue_send.put(mount_message("game_end"))
+            self.queue_send.put(mount_message("game_alert", ("The room no longer leaves.", )))
 
-            send_1 = {
-                "type": "game",
-                "subtype": "alert",
-                "message": "The room no longer leaves."
-            }
+            return
 
-            aux = {
-                "type": "new_game"
-            }
-            self.queue_receive.put(aux)
+        test = True
+        for i in room["players"]:
+            if i["address"] == self.address:
+                test = False
+                break
 
-            self.queue_send.put(send_0)
-            self.queue_send.put(send_1)
-
+        if test and len(room["players"]) != 0:
+            self.game.actual_id = None
+            self.queue_send.put(mount_message("game_end"))
+            self.queue_send.put(mount_message("game_alert", ("Leave the room!", )))
             return
 
         aux = deepcopy(room)
         aux["admin"] = aux["players"][0]["address"] == self.address
+        _round = aux["rounds"] % len(aux["players"])
+        aux["your"] = aux["players"][_round]["address"] == self.address
         del aux["word"]
         del aux["password"]
         for j in aux["players"]:
@@ -78,18 +70,22 @@ class GameProcess:
 
         aux["id_room"] = id_room
 
-        send = {
-            "type": "game",
-            "subtype": "att_state",
-            "state": aux
-        }
+        self.queue_send.put(mount_message("game_att_state", (aux,)))
 
-        self.queue_send.put(send)
+    def _make_play(self):
+        aux = self.game.make_player(self.data["text"])
+
+        if aux is None:
+            self._send_state()
+        else:
+            self.queue_send.put(mount_message("game_alert", (aux, )))
 
     def start(self):
-        aux = self.jdata["subtype"]
+        aux = self.data["subtype"]
         if aux == "init":
             self._init_game()
+        elif aux == "make_play":
+            self._make_play()
         elif aux == "exit":
             self._exit_game()
         elif aux == "end":

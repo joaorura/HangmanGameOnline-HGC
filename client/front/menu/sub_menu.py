@@ -35,8 +35,7 @@ class SubMenu(tk.Frame):
         self.input_3 = tk.Text(self, height=1, padx=2, pady=2)
         self.input_3.pack()
 
-        commit_button = tk.Button(self, text="Ok", command=self._aux_create(self.input_1, self.input_2,
-                                                                            self.input_3, function))
+        commit_button = tk.Button(self, text="Ok", command=self._aux_create)
         commit_button.pack()
 
         super().pack()
@@ -45,24 +44,16 @@ class SubMenu(tk.Frame):
     def _alert_message(text):
         showwarning(title="Warning", message=text)
 
-    def _aux_create(self, input_1, input_2, input_3, function):
-        def f():
-            result_1 = input_1.get("1.0", "end-1c")
-            result_2 = input_2.get("1.0", "end-1c")
-            result_3 = input_3.get("1.0", "end-1c")
+    def _aux_create(self):
+        result_1 = self.input_1.get("1.0", "end-1c")
+        result_2 = self.input_2.get("1.0", "end-1c")
+        result_3 = self.input_3.get("1.0", "end-1c")
 
-            aux = function(result_1, result_2, result_3)
-            if aux is not None:
-                self._alert_message(aux)
-            else:
-                self._create_loading()
-
-        return f
-
-    def close_loading(self):
-        self.destroy()
-        self.loading_page = None
-        self.loading_frame = None
+        aux = self.function(result_1, result_2, result_3)
+        if aux is not None:
+            self._alert_message(aux)
+        else:
+            self._create_loading()
 
     def _create_loading(self):
         if self.loading_page is not None:
@@ -70,6 +61,11 @@ class SubMenu(tk.Frame):
 
         self.loading_page = front_page("50x50", lambda: None, self)
         self.loading_frame = LoadingPage(self.loading_page)
+
+    def close_loading(self):
+        self.destroy()
+        self.loading_page = None
+        self.loading_frame = None
 
     def destroy(self):
         if self.loading_page is not None:

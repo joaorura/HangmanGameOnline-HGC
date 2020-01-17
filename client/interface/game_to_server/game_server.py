@@ -1,3 +1,6 @@
+from utils.utils import mount_message
+
+
 class GameServer:
     def __init__(self, queue_send, queue_receive):
         self.queue_send = queue_send
@@ -15,16 +18,7 @@ class GameServer:
         elif name_room == "":
             return "Name Room must be a string no empty"
 
-        send = {
-            "type": "menu",
-            "subtype": "create",
-            "name_player": name_player,
-            "name_room": name_room,
-            "password": password
-        }
-
-        self.queue_send.put(send)
-
+        self.queue_send.put(mount_message("menu_create", (name_player, name_room, password)))
         return None
 
     def enter_room(self, name_player, id_room, password):
@@ -33,22 +27,13 @@ class GameServer:
         elif id_room == "":
             return "Id Room must be a string no empty"
 
-        send = {
-            "type": "menu",
-            "subtype": "enter",
-            "name_player": name_player,
-            "id_room": id_room,
-            "password": password
-        }
-
-        self.queue_send.put(send)
-
+        self.queue_send.put(mount_message("menu_enter", (name_player, id_room, password)))
         return None
 
     def exit_room(self):
         send = {
             "type": "room",
-            "subtype": "exit",
+            "subtype": "exit"
         }
 
         return self._return_function(send)
@@ -56,7 +41,7 @@ class GameServer:
     def end(self):
         send = {
             "type": "menu",
-            "subtype": "end",
+            "subtype": "end"
         }
 
         self.queue_send.put(send)

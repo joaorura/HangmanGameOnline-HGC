@@ -22,6 +22,7 @@ class ProcessAll(Process):
 
             aux = self.queue_receive.get()
             test = aux['type']
+
             if test == "menu":
                 run = MenuProcess(self.intergame, aux, self.queue_send)
             elif test == "game":

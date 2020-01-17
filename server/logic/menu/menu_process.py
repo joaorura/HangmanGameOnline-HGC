@@ -27,7 +27,7 @@ class MenuProcess:
         word = words()
         word_discover = ""
         for i in word:
-            word_discover += "X"
+            word_discover += "x"
 
         self.rooms[id_room] = {
             "name_room": self.json_data["name_room"],
@@ -35,17 +35,15 @@ class MenuProcess:
             "players": [],
             "word": words(),
             "word_discover": word_discover,
-            "attempts": 6,
-            "total_attempts": 0,
+            "attempts": 0,
+            "total_attempts": 6,
             "rounds": 0,
-            "turn": 0
+            "turn": 0,
         }
 
         self.json_data["id_room"] = id_room
         self.game.actual_id = id_room
-
-        self.game.start()
-        self._enter_room()
+        self._enter_room(False)
 
     def _enter_send(self, test, text=None):
         send = {
@@ -60,17 +58,14 @@ class MenuProcess:
         if test:
             send["id_room"] = self.json_data["id_room"]
 
-        print("tvaido")
         self.queue.put(send)
 
-    def _enter_room(self):
+    def _enter_room(self, test):
         id_room = self.json_data["id_room"]
-        print("entrou")
 
         try:
             room_data = self.rooms[id_room]
         except KeyError:
-            print("Problem Error")
             self._enter_send(False, "Wrong id room.")
             return
 
@@ -84,7 +79,8 @@ class MenuProcess:
             _copy["players"].append(aux)
             self.rooms[id_room] = _copy
 
-            print("ta aqui")
+            if test:
+                self.game.actual_id = id_room
             self._enter_send(True)
         else:
             self._enter_send(False, "Wrong Password.")
@@ -104,7 +100,9 @@ class MenuProcess:
         self.queue.put(send)
 
     def _exit_all(self):
+        self.game.end()
         self.client_status.value = False
+
 
     def start(self):
         aux = self.json_data['subtype']
@@ -114,7 +112,7 @@ class MenuProcess:
         elif aux == 'create':
             self._create_room()
         elif aux == "enter":
-            self._enter_room()
+            self._enter_room(True)
         elif aux == 'exit':
             self._exit_room()
         else:

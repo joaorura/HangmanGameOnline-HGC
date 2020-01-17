@@ -15,6 +15,7 @@ class ProcessSend(Process):
         while True:
             if not bool(self.client_status.value):
                 self.socket.close()
+                print("\t\tEnd of Process Send")
                 return
 
             if self.queue.empty():

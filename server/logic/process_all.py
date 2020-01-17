@@ -20,8 +20,10 @@ class ProcessAll(Process):
 
     def _run(self):
         self.game = Game(self.queue_send, self.queue_receive, self.rooms)
+
         while True:
             if not bool(self.client_status.value):
+                print(f"\tEnf conection of: {self.address}")
                 return
 
             if self.queue_receive.empty():
@@ -31,14 +33,10 @@ class ProcessAll(Process):
             jdata = self.queue_receive.get()
 
             if jdata['type'] == 'game':
-                aux = GameProcess(jdata, self.game, self.address, self.queue_send, self.queue_receive, self.rooms)
+                aux = GameProcess(jdata, self.game, self.address, self.queue_send, self.rooms)
             elif jdata['type'] == 'menu':
                 aux = MenuProcess(jdata, self.queue_send, self.client_status,
                                   self.address, self.rooms, self.game)
-            elif jdata['type'] == 'new_game':
-                self.game.terminate()
-                self.game = Game(self.queue_send, self.queue_receive, self.rooms)
-                continue
             else:
                 raise RuntimeError
 

@@ -6,7 +6,7 @@ from .process_send import ProcessSend
 
 
 class CommunicateProcess:
-    def __init__(self, socket,  address, rooms):
+    def __init__(self, socket, address, rooms):
         check_type(address, tuple)
 
         self.socket = socket
@@ -34,4 +34,3 @@ class CommunicateProcess:
     def start(self):
         for a in self.process_list:
             a.start()
-

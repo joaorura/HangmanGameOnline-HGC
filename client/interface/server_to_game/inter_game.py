@@ -3,6 +3,7 @@ from front.menu.menu import Menu
 from interface.game_to_server.game_server import GameServer
 import tkinter as tk
 from tkinter.messagebox import showerror
+from utils.utils import mount_message
 
 
 class InterGame:
@@ -17,43 +18,19 @@ class InterGame:
             self.queue_front.put(("alert", data["message"]))
         else:
             self.queue_front.put(("game_start", None))
+            self.queue_send.put(mount_message("game_init", (data["id_room"],)))
 
-            send = {
-                "type": "game",
-                "subtype": "init",
-                "id_room": data["id_room"]
-            }
-
-            self.queue_send.put(send)
+    def make_play(self, text):
+        self.queue_send.put(mount_message("game_make_play", (text,)))
 
     def end_game(self):
-        send_0 = {
-            "type": "game",
-            "subtype": "end",
-        }
-
-        send_1 = {
-            "type": "game",
-            "subtype": "att_request"
-        }
-
-        self.queue_send.put(send_0)
-        self.queue_send.put(send_1)
+        self.queue_send.put(mount_message("game_end"))
+        self.queue_send.put(mount_message("game_att_request"))
 
     def exit_room(self, test):
         if test:
-            send_0 = {
-                "type": "game",
-                "subtype": "exit"
-            }
-
-            send_1 = {
-                "type": "game",
-                "subtype": "att_request"
-            }
-
-            self.queue_send.put(send_0)
-            self.queue_send.put(send_1)
+            self.queue_send.put(mount_message("game_exit"))
+            self.queue_send.put(mount_message("game_att_request"))
         else:
             self.queue_front.put(("end_game", None))
 
@@ -70,6 +47,7 @@ class InterGame:
         def f():
             nonlocal page
             if self.queue_front.empty():
+                self.queue_send.put(mount_message("game_att_request"))
                 root.after(500, self._periodic_inter(root, page))
                 return
 
@@ -80,13 +58,13 @@ class InterGame:
             if element == "game_update":
                 if type(page) == Menu:
                     page.destroy()
-                page = GameFront(self, data, root)
+                    page = GameFront(self, data, root)
+                page.data = data
+                page.init()
             elif element == "game_start":
                 page.destroy()
             elif element == "end_game":
-                if type(page) == GameFront:
-                    page.destroy()
-
+                page.destroy()
                 page = Menu(self, root)
             elif element == "alert" and data is not None:
                 showerror("Error", data)

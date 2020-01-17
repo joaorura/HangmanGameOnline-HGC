@@ -16,6 +16,7 @@ class ProcessReceive(Process):
         while True:
             if not bool(self.client_status.value):
                 self.socket.close()
+                print("\t\tEnd of Process Receive")
                 return
 
             try:
