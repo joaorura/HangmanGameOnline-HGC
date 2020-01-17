@@ -24,11 +24,10 @@ class ServerConnection:
 
         self.queue_send = Queue()
         self.queue_receive = Queue()
-
-        self.process_send = ProcessSend(self.queue_send, self.socket)
-        self.process_receive = ProcessReceive(self.queue_receive, self.socket)
-
         self.queue_front = Queue()
+
+        self.process_send = ProcessSend(self.queue_send, self.queue_front, self.socket)
+        self.process_receive = ProcessReceive(self.queue_receive, self.socket)
         self.process = ProcessAll(self.queue_front, self.queue_send, self.queue_receive)
 
         self.process_list.append(self.process_send)

@@ -59,6 +59,19 @@ class GameProcess:
             self.queue_send.put(mount_message("game_alert", ("Leave the room!", )))
             return
 
+        if room["word"] == room["word_discover"]:
+            self.game.actual_id = None
+            self.queue_send.put(mount_message("game_end"))
+
+            if len(room["players"]) == 1:
+                winner = 0
+            else:
+                winner = (room["rounds"] - 1) % len(room["players"])
+
+            self.queue_send.put(mount_message(
+                "game_alert", (f"The Game is End!\nThe Winner is {room['players'][winner]['name_player']}", )))
+            return
+
         aux = deepcopy(room)
         aux["admin"] = aux["players"][0]["address"] == self.address
         _round = aux["rounds"] % len(aux["players"])

@@ -23,19 +23,19 @@ class ProcessAll(Process):
 
         while True:
             if not bool(self.client_status.value):
-                print(f"\tEnf conection of: {self.address}")
+                print(f"\tEnd connection of: {self.address}")
                 return
 
             if self.queue_receive.empty():
                 sleep(0.1)
                 continue
 
-            jdata = self.queue_receive.get()
+            data = self.queue_receive.get()
 
-            if jdata['type'] == 'game':
-                aux = GameProcess(jdata, self.game, self.address, self.queue_send, self.rooms)
-            elif jdata['type'] == 'menu':
-                aux = MenuProcess(jdata, self.queue_send, self.client_status,
+            if data['type'] == 'game':
+                aux = GameProcess(data, self.game, self.address, self.queue_send, self.rooms)
+            elif data['type'] == 'menu':
+                aux = MenuProcess(data, self.queue_send, self.client_status,
                                   self.address, self.rooms, self.game)
             else:
                 raise RuntimeError

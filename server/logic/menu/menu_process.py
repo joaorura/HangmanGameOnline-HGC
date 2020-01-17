@@ -69,6 +69,10 @@ class MenuProcess:
             self._enter_send(False, "Wrong id room.")
             return
 
+        if len(room_data["players"]) >= 4:
+            self._enter_send(False, "The room is full!")
+            return
+
         if self.json_data["password"] == room_data["password"]:
             aux = {
                 "name_player": self.json_data["name_player"],
@@ -102,7 +106,6 @@ class MenuProcess:
     def _exit_all(self):
         self.game.end()
         self.client_status.value = False
-
 
     def start(self):
         aux = self.json_data['subtype']

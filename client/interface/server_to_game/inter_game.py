@@ -15,6 +15,7 @@ class InterGame:
 
     def enter_room(self, data):
         if not data["status"]:
+            self.queue_front.put(("end_game", None))
             self.queue_front.put(("alert", data["message"]))
         else:
             self.queue_front.put(("game_start", None))
@@ -66,6 +67,8 @@ class InterGame:
             elif element == "end_game":
                 page.destroy()
                 page = Menu(self, root)
+            elif element == "end_all":
+                root.destroy()
             elif element == "alert" and data is not None:
                 showerror("Error", data)
             else:
